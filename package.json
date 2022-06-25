@@ -1,0 +1,24 @@
+{
+  "name": "song-link-saver",
+  "version": "0.1.0",
+  "description": "Telegram Bot to post music links to a channel",
+  "main": "index.js",
+  "scripts": {
+    "start:dev": "nodemon index.js",
+    "start": "node index.js"
+  },
+  "type": "module",
+  "module": "index.js",
+  "keywords": [],
+  "author": "Boris Lobanov",
+	"repository": "https://github.com/borislobanov92/song-link-saver",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^0.27.2",
+    "dotenv": "^16.0.1",
+    "express": "^4.18.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.18"
+  }
+}
