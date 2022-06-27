@@ -12,6 +12,7 @@ const app = express()
 app.use(express.json())
 
 const tgChannelId = '-1001626321432'
+const whitelistedUsers = ['65453735']
 
 app.post('/new-message', async (req, res) => {
   const { message } = req.body
@@ -20,6 +21,18 @@ app.post('/new-message', async (req, res) => {
   }
 
   try {
+    const userId = message.chat.id
+
+    if (!userId) {
+      console.error('userId is empty', message)
+      return res.end()
+    }
+
+    if (!whitelistedUsers.includes(userId.toString())) {
+      console.error(`User ${userId} is not allowed to post messages`)
+      return res.end()
+    }
+
     const text = message.text
 
     if (!text) {
@@ -28,9 +41,31 @@ app.post('/new-message', async (req, res) => {
     }
 
     const tgBotToken = process.env.TELEGRAM_BOT_TOKEN
-    const formattedMessage = await getFormattedMessage(text)
 
-    axios
+    if (text === '/start') {
+      console.log(`Started chat with user ${userId}`)
+      return axios
+        .post(
+          `https://api.telegram.org/bot${tgBotToken}/sendMessage`,
+          {
+            chat_id: userId,
+            text: 'Please enter song title and hashtags with spaces (e.g. "Black dog - Led Zeppelin #rock #blues #guitars")',
+          }
+        )
+        .then((response) => {
+          res.end('ok')
+        })
+        .catch((err) => {
+          console.error('Error :', err)
+          res.end('Error :' + err)
+        })
+    }
+
+    const hashtags = text.match(/#[\w]+/g) ?? []
+    const songTitle = text.split(' #')[0]
+    const formattedMessage = await getFormattedMessage(songTitle, hashtags)
+
+    return axios
       .post(
         `https://api.telegram.org/bot${tgBotToken}/sendMessage`,
         {
@@ -39,7 +74,6 @@ app.post('/new-message', async (req, res) => {
         }
       )
       .then((response) => {
-        console.log('Message posted')
         res.end('ok')
       })
       .catch((err) => {
@@ -51,13 +85,12 @@ app.post('/new-message', async (req, res) => {
   }
 })
 
-async function getFormattedMessage(songTitle) {
-  const hashTags = ['#touriev', '#music']
+async function getFormattedMessage(songTitle, hashtags) {
   const ytLink = await getFirstResult(songTitle)
   const vkLink = await getVKLink(songTitle)
   const appleMusicLink = await getAppleMusicLink(songTitle)
 
-  const message = `${hashTags.join(' ')}\nYouTube: ${ytLink}\nVK: ${vkLink}\nApple Music: ${appleMusicLink}\n`
+  const message = `${hashtags.join(' ')}\nYouTube: ${ytLink}\nVK: ${vkLink}\nApple Music: ${appleMusicLink}\n`
   console.log(message)
 
   return message
