@@ -2,7 +2,7 @@ import express from 'express'
 import axios from 'axios'
 import dotenv from 'dotenv'
 
-import { getFirstResult } from './src/youtube.js'
+import { getYoutubeLink } from './src/youtube.js'
 import { getAppleMusicLink } from './src/apple_music.js'
 import { getVKLink } from './src/vk.js'
 
@@ -31,6 +31,8 @@ app.post('/new-message', async (req, res) => {
       console.error('text is empty', message)
       return res.end()
     }
+
+    console.log(`User message text: ${text}`)
 
     const tgBotToken = process.env.TELEGRAM_BOT_TOKEN
 
@@ -78,7 +80,7 @@ app.post('/new-message', async (req, res) => {
 })
 
 async function getFormattedMessage(songTitle, hashtags) {
-  const ytLink = await getFirstResult(songTitle)
+  const ytLink = await getYoutubeLink(songTitle)
   const vkLink = await getVKLink(songTitle)
   const appleMusicLink = await getAppleMusicLink(songTitle)
 
