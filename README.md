@@ -1,4 +1,3 @@
-## Telegram Bot to post music links to a channel
+## Telegram Bot to find music links
 
-The bot will search YouTube, VK and Apple Music for a song name, grab the first result
-and make a post to all desired channels
+The bot will search YouTube for a song name, grab the first result, format it with hashtags and return to the user
